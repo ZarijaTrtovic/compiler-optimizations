@@ -1,0 +1,13 @@
+*.o
+*.out
+dead-store/dead-store
+algebraic/algebraic
+
+*.ll
+*.bc
+
+.vscode/
+*.swp
+*~
+
+.DS_Store
