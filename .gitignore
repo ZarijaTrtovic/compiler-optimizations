@@ -5,8 +5,7 @@ dead-store/test-examples/*-original
 dead-store/test-examples/*-optimized
 dead-store/*-original
 dead-store/*-optimized
-
-algebraic/algebraic
+dse
 
 *.ll
 *.bc
