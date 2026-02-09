@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <set>
 
 using namespace std;
 
@@ -35,6 +36,35 @@ string extractAdress(const string& line){
     return line.substr(startPosition, endPosition - startPosition);
 }
 
+void generateOptimizedFile(const string& intputFileName, const vector
+                        <string>& lines, const set<int>& deadLines){
+        string outputFilename = intputFileName;
+
+        auto llposition = outputFilename.find(".ll");
+        if(llposition != string::npos){
+            outputFilename.insert(llposition, "-opt");
+        } else{
+            cerr << "Warning: Input file does not have .ll extension" << endl;
+        }
+
+        ofstream outputFile(outputFilename);
+        if(!outputFile.is_open()) {
+            cerr << "Error: Could not create output file" << outputFilename << endl;
+            return;
+        }
+
+        for(int i = 0; i < lines.size(); i++){
+            if(deadLines.find(i + 1) != deadLines.end()){
+                continue;
+            }
+            outputFile << lines[i] << endl;
+        }
+
+        outputFile.close();
+        cout << endl <<  "Optimization Complete!" << endl;
+
+    }
+
 int main(int argc, char** argv){
     if(argc < 2){
         cout << "User didnt enter any file name" << endl;
@@ -48,15 +78,16 @@ int main(int argc, char** argv){
         return 1;
     }
 
+
     vector<string> lines;
+    set<int> deadLines;
+
     string line;
     int storeCount = 0;
 
     while(getline(inputFile, line)){
             lines.push_back(line);
     }
-
-    cout << "Total store instructions found:" << storeCount << endl;
 
     vector<StoreInstruction> stores;
 
@@ -97,15 +128,27 @@ int main(int argc, char** argv){
         }
     }
 
+    int deadCount = 0;
+    int liveCount = 0;
+
     for(const auto& store : stores){
         if(store.isDead){
             cout << "DEAD LINE: " << store.lineNumber << ": "
                 << store.fullLine << endl;
+            deadCount++;
+            deadLines.insert(store.lineNumber);
         }
         else {
             cout << "[LIVE] Line " << store.lineNumber << ": " 
                  << store.fullLine << endl;
+            liveCount++;
         }
+    }
+
+    if(deadCount > 0){
+        generateOptimizedFile(argv[1], lines, deadLines);
+    } else{
+        cout << "No dead stores found. Optimization is not needed" << endl;
     }
 
     return 0;
