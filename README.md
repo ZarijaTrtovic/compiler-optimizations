@@ -50,7 +50,7 @@ Algoritam
 	- Ukoliko se primenjuje, utvrdjuje se koja - sabiranje, oduzimanje, mnozenje ili deljenje.
 	- Ukoliko se ne primenjue, algoritam prelazi na sledecu instrukciju.
 2. U zavisnosti od operacije, vrsi se zamena izraza jednim operandom ili konstantom na sledeci nacin:
-```	1. x + 0 --> x
+	1. x + 0 --> x
 	2. 0 + x --> x
 	3. x - 0 --> x
 	4. 0 - x --> -x
