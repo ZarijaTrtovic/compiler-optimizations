@@ -65,12 +65,11 @@ Algoritam
 	13. 0 / x --> 0 (x != 0)
 	14. x / x --> 1 (x != 0)
 	15. x + (-x) --> 0
-```
 3. Generise se optimizovani fajl sa uproscenim izrazima.
 	
-
 
 Potrebni alati
 - LLVM 14+
 - Clang
 - g++ ili clang++
+```
