@@ -26,7 +26,7 @@ namespace {
 
             IRBuilder<> Builder(&Instr);
 
-    // Addition
+          //Addiction
             if (BinaryOp->getOpcode() == Instruction::Add) {
 
               // x + 0
@@ -35,18 +35,16 @@ namespace {
                   Instr.replaceAllUsesWith(LeftOp);
                   InstructionsForRemoval.push_back(&Instr);
                 }
-              }
 
               // 0 + x
-              if (ConstantInt *ConstLeft = dyn_cast<ConstantInt>(LeftOp)){
+              } else if (ConstantInt *ConstLeft = dyn_cast<ConstantInt>(LeftOp)){
                 if (ConstLeft->isZero()) {
                   Instr.replaceAllUsesWith(RightOp);
                   InstructionsForRemoval.push_back(&Instr);
                 }
-              }
 
-              //x + (-x)
-              if (BinaryOperator *RightBO = dyn_cast<BinaryOperator>(RightOp)) {
+              // x + (-x)
+              } else if (BinaryOperator *RightBO = dyn_cast<BinaryOperator>(RightOp)) {
                 bool zero = false;
                 if(ConstantInt *ConstInt = dyn_cast<ConstantInt>(RightBO->getOperand(0)))
                   zero = ConstInt->isZero();
@@ -58,10 +56,9 @@ namespace {
                   InstructionsForRemoval.push_back(&Instr);
                 }
               }
-            }
 
-    // Subtraction
-            if (BinaryOp->getOpcode() == Instruction::Sub) {
+          //Subtraction
+            } else if (BinaryOp->getOpcode() == Instruction::Sub) {
 
               // x - 0
               if (ConstantInt *ConstRight = dyn_cast<ConstantInt>(RightOp)){
@@ -69,26 +66,23 @@ namespace {
                   Instr.replaceAllUsesWith(LeftOp);
                   InstructionsForRemoval.push_back(&Instr);
                 }
-              }
 
-              // 0 - x  --> -x
-              if (ConstantInt *ConstLeft = dyn_cast<ConstantInt>(LeftOp)){
+              // 0 - x
+              } else if (ConstantInt *ConstLeft = dyn_cast<ConstantInt>(LeftOp)){
                 if (ConstLeft->isZero()) {
                   Value *Neg = Builder.CreateNeg(RightOp);
                   Instr.replaceAllUsesWith(Neg);
                   InstructionsForRemoval.push_back(&Instr);
                 }
-              }
 
-              // x - x --> 0
-              if (LeftOp == RightOp) {
+              // x - x
+              } else if (LeftOp == RightOp) {
                 Instr.replaceAllUsesWith(ConstantInt::get(BinaryOp->getType(), 0));
                 InstructionsForRemoval.push_back(&Instr);
               }
-            }
 
-    // Multiplication
-            if (BinaryOp->getOpcode() == Instruction::Mul) {
+          //Multiplication
+            } else if (BinaryOp->getOpcode() == Instruction::Mul) {
 
               // x * 0
               if (ConstantInt *ConstRight = dyn_cast<ConstantInt>(RightOp)){
@@ -96,52 +90,47 @@ namespace {
                   Instr.replaceAllUsesWith(ConstantInt::get(BinaryOp->getType(), 0));
                   InstructionsForRemoval.push_back(&Instr);
                 }
-              }
+
               // 0 * x
-              if (ConstantInt *ConstLeft = dyn_cast<ConstantInt>(LeftOp)){
+              } else if (ConstantInt *ConstLeft = dyn_cast<ConstantInt>(LeftOp)){
                 if (ConstLeft->isZero()) {
                   Instr.replaceAllUsesWith(ConstantInt::get(BinaryOp->getType(), 0));
                   InstructionsForRemoval.push_back(&Instr);
                 }
-              }
 
               // x * 1
-              if (ConstantInt *ConstRight = dyn_cast<ConstantInt>(RightOp)){
+              } else if (ConstantInt *ConstRight = dyn_cast<ConstantInt>(RightOp)){
                 if (ConstRight->isOne()) {
                   Instr.replaceAllUsesWith(LeftOp);
                   InstructionsForRemoval.push_back(&Instr);
                 }
-              }
 
               // 1 * x
-              if (ConstantInt *ConstLeft = dyn_cast<ConstantInt>(LeftOp)){
+              } else if (ConstantInt *ConstLeft = dyn_cast<ConstantInt>(LeftOp)){
                 if (ConstLeft->isOne()) {
                   Instr.replaceAllUsesWith(RightOp);
                   InstructionsForRemoval.push_back(&Instr);
                 }
-              }
 
               // x * (-1)
-              if (ConstantInt *ConstRight = dyn_cast<ConstantInt>(RightOp)){
+              } else if (ConstantInt *ConstRight = dyn_cast<ConstantInt>(RightOp)){
                 if (ConstRight->isMinusOne()) {
                   Value *Neg = Builder.CreateNeg(LeftOp);
                   Instr.replaceAllUsesWith(Neg);
                   InstructionsForRemoval.push_back(&Instr);
                 }
-              }
 
               // (-1) * x
-              if (ConstantInt *ConstLeft = dyn_cast<ConstantInt>(LeftOp)){
+              } else if (ConstantInt *ConstLeft = dyn_cast<ConstantInt>(LeftOp)){
                 if (ConstLeft->isMinusOne()) {
                   Value *Neg = Builder.CreateNeg(RightOp);
                   Instr.replaceAllUsesWith(Neg);
                   InstructionsForRemoval.push_back(&Instr);
                 }
               }
-            }
 
-    //Division
-            if (BinaryOp->getOpcode() == Instruction::SDiv) {
+          //Division
+            } else if (BinaryOp->getOpcode() == Instruction::SDiv) {
 
               // x / 1
               if (ConstantInt *ConstRight = dyn_cast<ConstantInt>(RightOp)){
@@ -149,10 +138,9 @@ namespace {
                   Instr.replaceAllUsesWith(LeftOp);
                   InstructionsForRemoval.push_back(&Instr);
                 }
-              }
 
-              // 0 / x (x != 0)
-              if (ConstantInt *ConstLeft = dyn_cast<ConstantInt>(LeftOp)){
+              // 0 / x
+              } else if (ConstantInt *ConstLeft = dyn_cast<ConstantInt>(LeftOp)){
                 if (ConstLeft->isZero()) {
                   if(ConstantInt *ConstRight = dyn_cast<ConstantInt>(RightOp)){
                     if(!ConstRight->isZero()){
@@ -161,10 +149,9 @@ namespace {
                     }
                   }
                 }
-              }
 
-              // x / x  (x != 0)
-              if (LeftOp == RightOp) {
+              // x / x
+              } else if (LeftOp == RightOp) {
                 if(ConstantInt *ConstLeft = dyn_cast<ConstantInt>(LeftOp)){
                   if(!ConstLeft->isZero()){
                     Instr.replaceAllUsesWith(ConstantInt::get(BinaryOp->getType(), 1));
@@ -174,6 +161,7 @@ namespace {
               }
             }
           }
+
         }
       }
 
@@ -192,20 +180,3 @@ namespace {
 
 char AlgebraicSimplification::ID = 0;
 static RegisterPass<AlgebraicSimplification> X("algebraic-pass", "This pass simplifies algebraic expressions.", false, false);
-
-
-// x + 0 --> x
-// 0 + x --> x
-// x - 0 --> x
-// 0 - x --> -x
-// x * 0 --> 0
-// 0 * x --> x
-// x * 1 --> x
-// 1 * x --> x
-// x * (-1) --> -x
-// (-1) * x --> -x
-// x / 1 --> x
-// x - x --> 0
-// 0 / x --> 0 (x /= 0)
-// x / x --> 1 (x /= 0)
-// x + (-x) --> 0
