@@ -1,155 +1,72 @@
-#include <iostream>
-#include <fstream>
-#include <string>
+#include "llvm/IR/Function.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/Pass.h"
+#include "llvm/Support/raw_ostream.h"
 #include <vector>
-#include <set>
 
-using namespace std;
+using namespace llvm;
 
-struct StoreInstruction {
-    int lineNumber;
-    string fullLine;
-    string adress;
-    bool isDead;
-};
+namespace {
+struct DeadStoreEliminationPass : public FunctionPass {
+    static char ID;
+    DeadStoreEliminationPass() : FunctionPass(ID) {}
 
-bool isStoreLine(const string& s){
-    return s.find("store") != string::npos;
-}
-
-bool isLoadForAddress(const string& line, const string& address) {
-    return (line.find("load") != string::npos) && 
-           (line.find(address) != string::npos);
-}
-
-string extractAdress(const string& line){
-    auto pointerPosition = line.find("i32*");
-
-    if(pointerPosition == string::npos){
-        return "";
-    }
-
-    auto startPosition = pointerPosition + 5;
-
-    auto endPosition = line.find_first_of(" ,\t", startPosition);
-
-    return line.substr(startPosition, endPosition - startPosition);
-}
-
-void generateOptimizedFile(const string& intputFileName, const vector
-                        <string>& lines, const set<int>& deadLines){
-        string outputFilename = intputFileName;
-
-        auto llposition = outputFilename.find(".ll");
-        if(llposition != string::npos){
-            outputFilename.insert(llposition, "-opt");
-        } else{
-            cerr << "Warning: Input file does not have .ll extension" << endl;
-        }
-
-        ofstream outputFile(outputFilename);
-        if(!outputFile.is_open()) {
-            cerr << "Error: Could not create output file" << outputFilename << endl;
-            return;
-        }
-
-        for(int i = 0; i < lines.size(); i++){
-            if(deadLines.find(i + 1) != deadLines.end()){
-                continue;
-            }
-            outputFile << lines[i] << endl;
-        }
-
-        outputFile.close();
-        cout << endl <<  "Optimization Complete!" << endl;
-
-    }
-
-int main(int argc, char** argv){
-    if(argc < 2){
-        cout << "User didnt enter any file name" << endl;
-        return 1;
-    }
-
-    ifstream inputFile(argv[1]);
-
-    if(!inputFile.is_open()){
-        cerr << "Error: Could not open file" << argv[1] << endl;
-        return 1;
-    }
-
-
-    vector<string> lines;
-    set<int> deadLines;
-
-    string line;
-    int storeCount = 0;
-
-    while(getline(inputFile, line)){
-            lines.push_back(line);
-    }
-
-    vector<StoreInstruction> stores;
-
-    for(int i = 0; i < lines.size(); i++){
-        if(isStoreLine(lines[i])) {
-            StoreInstruction store;
-            store.lineNumber = i + 1;
-            store.fullLine = lines[i];
-            store.adress = extractAdress(lines[i]);
-            store.isDead = false;
-
-            stores.push_back(store);
-        }
-    }
-
-    for(int i = 0; i < stores.size(); i++){
-        string currentAdress = stores[i].adress;
-        int currentIndex = stores[i].lineNumber - 1;
-
-        for(int j = currentIndex + 1; j < lines.size(); j++){
-            string nextLine = lines[j];
-
-            if(isStoreLine(nextLine) && extractAdress(nextLine) == currentAdress){
-                stores[i].isDead = true;
-                break;
-            }
-            if(isLoadForAddress(nextLine, currentAdress)){
-                stores[i].isDead = false;
-                break;
-            }
-
-            if(nextLine.find("ret") != string::npos){
-                if(nextLine.find(currentAdress) == string::npos){
-                    stores[i].isDead = true;
+    bool isDeadStore(StoreInst *SI) {
+        Value *Ptr = SI->getPointerOperand();
+        
+        BasicBlock::iterator it(SI);
+        ++it;
+        
+        for (; it != SI->getParent()->end(); ++it) {
+            Instruction *Next = &*it;
+            
+            if (StoreInst *NextStore = dyn_cast<StoreInst>(Next)) {
+                if (NextStore->getPointerOperand() == Ptr) {
+                    return true;
                 }
-                break;
+            }
+            
+            if (LoadInst *NextLoad = dyn_cast<LoadInst>(Next)) {
+                if (NextLoad->getPointerOperand() == Ptr) {
+                    return false;
+                }
             }
         }
+        
+        return true;
     }
 
-    int deadCount = 0;
-    int liveCount = 0;
-
-    for(const auto& store : stores){
-        if(store.isDead){
-            cout << "DEAD LINE: " << store.lineNumber << ": "
-                << store.fullLine << endl;
-            deadCount++;
-            deadLines.insert(store.lineNumber);
+    bool runOnFunction(Function &F) override {
+        bool Changed = false;
+        std::vector<StoreInst*> DeadStores;
+        
+        for (BasicBlock &BB : F) {
+            for (Instruction &I : BB) {
+                if (StoreInst *SI = dyn_cast<StoreInst>(&I)) {
+                    if (isDeadStore(SI)) {
+                        DeadStores.push_back(SI);
+                        errs() << "[DEAD STORE]: " << I << "\n";
+                    }
+                }
+            }
         }
-        else {
-            cout << "[LIVE] Line " << store.lineNumber << ": " 
-                 << store.fullLine << endl;
-            liveCount++;
+        
+        for (StoreInst *SI : DeadStores) {
+            SI->eraseFromParent();
+            Changed = true;
         }
+        
+        errs() << "Removed " << DeadStores.size() << " dead stores\n";
+        
+        return Changed;
     }
+};
+}
 
-    if(deadCount > 0){
-        generateOptimizedFile(argv[1], lines, deadLines);
-    } else{
-        cout << "No dead stores found. Optimization is not needed" << endl;
-    }
-
-    return 0;
-} 
+char DeadStoreEliminationPass::ID = 0;
+static RegisterPass<DeadStoreEliminationPass> X(
+    "dead-store-elimination",
+    "Dead Store Elimination Pass",
+    false,
+    false
+);
