@@ -39,6 +39,8 @@ Algoritam
    - Ako nema ni jednog → DEAD
 3. Generiši optimizovani fajl bez dead stores
 
+![Prikaz LLVM IRa jednog C programa pre optimizacije](test2ll.png)
+![Prikaz LLVM IRa istog C programa nakon optimizacije](test2opt.png)
 
 
 Algebraic Simplification:
