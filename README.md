@@ -41,11 +41,11 @@ Algoritam
 
 ### LLVM IR pre optimizacije
 
-![Prikaz LLVM IRa jednog C programa pre optimizacije](https://raw.githubusercontent.com/ZarijaTrtovic/compiler-optimizations/main/test2ll.png)
+![Prikaz LLVM IRa C programa pre optimizacije](https://raw.githubusercontent.com/ZarijaTrtovic/compiler-optimizations/main/test2ll.png)
 
 ### LLVM IR posle optimizacije
 
-![Prikaz LLVM IRa istog C programa nakon optimizacije](https://raw.githubusercontent.com/ZarijaTrtovic/compiler-optimizations/main/test2opt.png)
+![Prikaz LLVM IRa tog C programa nakon optimizacije](https://raw.githubusercontent.com/ZarijaTrtovic/compiler-optimizations/main/test2opt.png)
 
 Algebraic Simplification:
 Optimizacija pojednostavljuje trivijalne aritmeticke izraze u LLVM IR kodu, smanjujuci nepotrebne operacije.
