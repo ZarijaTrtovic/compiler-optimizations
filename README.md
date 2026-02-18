@@ -39,8 +39,8 @@ Algoritam
    - Ako nema ni jednog → DEAD
 3. Generiši optimizovani fajl bez dead stores
 
-![Prikaz LLVM IRa jednog C programa pre optimizacije](https://github.com/ZarijaTrtovic/compiler-optimizations/blob/main/test2ll.png?raw=true)
-![Prikaz LLVM IRa istog C programa nakon optimizacije](https://github.com/ZarijaTrtovic/compiler-optimizations/blob/main/test2opt.png?raw=true)
+![Prikaz LLVM IRa jednog C programa pre optimizacije](https://raw.githubusercontent.com/ZarijaTrtovic/compiler-optimizations/main/test2ll.png)
+![Prikaz LLVM IRa istog C programa nakon optimizacije](https://raw.githubusercontent.com/ZarijaTrtovic/compiler-optimizations/main/test2opt.png)
 
 Algebraic Simplification:
 Optimizacija pojednostavljuje trivijalne aritmeticke izraze u LLVM IR kodu, smanjujuci nepotrebne operacije.
