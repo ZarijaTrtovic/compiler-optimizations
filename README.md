@@ -38,15 +38,14 @@ Algoritam
    - Ako je sledeća load → prva je LIVE
    - Ako nema ni jednog → DEAD
 3. Generiši optimizovani fajl bez dead stores
-
-### LLVM IR pre optimizacije
-
-![Prikaz LLVM IRa C programa pre optimizacije](https://raw.githubusercontent.com/ZarijaTrtovic/compiler-optimizations/main/test2ll.png)
+```
+### LLVM IR pre optimizacije 
+<img src="dead-code/test2ll.png" width="800" height="450"/>
 
 ### LLVM IR posle optimizacije
+<img src="dead-code/test2opt.png" width="800" height="450"/>
 
-![Prikaz LLVM IRa tog C programa nakon optimizacije](https://raw.githubusercontent.com/ZarijaTrtovic/compiler-optimizations/main/test2opt.png)
-
+```
 Algebraic Simplification:
 Optimizacija pojednostavljuje trivijalne aritmeticke izraze u LLVM IR kodu, smanjujuci nepotrebne operacije.
 	
@@ -72,8 +71,13 @@ Algoritam
 	14. x / x --> 1 (x != 0)
 	15. x + (-x) --> 0
 3. Generise se optimizovani fajl sa uproscenim izrazima.
-	
 
+```
+
+### LLVM IR pre i posle optimizacije
+<img src="algebraic-simplification/irs.png" width="1200" height="720"/>
+	
+```
 Potrebni alati
 - LLVM 14+
 - Clang
