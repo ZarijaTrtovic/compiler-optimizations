@@ -1,6 +1,7 @@
 #include <stdio.h>
 
-void test(int x) {
+int main() {
+    int x = 10;
     int a = x + 0;
     int b = 0 + x;
     int c = x + (-x);
@@ -20,12 +21,5 @@ void test(int x) {
     int o = 0 / x;
     int p = x / x;
 
-    
-    printf("a = %d\nb = %d\nc = %d\n\nd = %d\nf = %d\ng = %d\n\nh = %d\ni = %d\nj = %d\nk = %d\nl = %d\nm = %d\n\nn = %d\no = %d\np = %d\n", 
-       a, b, c, d, f, g, h, i, j, k, l, m, n, o, p);
-}
-
-int main() {
-    test(10);
     return 0;
 }
