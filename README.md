@@ -40,10 +40,10 @@ Algoritam
 3. Generiši optimizovani fajl bez dead stores
 ```
 ### LLVM IR pre optimizacije 
-<img src="dead-code/test2ll.png" width="800" height="450"/>
+<img src="dead-store/test2ll.png" width="800" height="450"/>
 
 ### LLVM IR posle optimizacije
-<img src="dead-code/test2opt.png" width="800" height="450"/>
+<img src="dead-store/test2opt.png" width="800" height="450"/>
 
 ```
 Algebraic Simplification:
